@@ -18,6 +18,7 @@ const files = {
 function App() {
   const [fileName, setFileName] = useState("script.py");
   const [output, setOutput] = useState("output");
+  const [input, setInput] = useState("");
   const editorRef = useRef(null);
   const file = files[fileName];
 
@@ -40,17 +41,22 @@ function App() {
     });
     monaco.editor.setTheme("myTheme");
   }
-
+  // console.log("input", input);
   async function SendCode() {
+    const inputobj = input.split(" ");
+    // console.log(inputobj, "inputobj");
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: editorRef.current.getValue() }),
+      body: JSON.stringify({
+        code: editorRef.current.getValue(),
+        inputparams: inputobj,
+      }),
     };
     const res = await fetch("http://localhost:4000/", requestOptions);
     const data = await res.json();
     console.log(data.message);
-    console.log(data.output);
+    // console.log(data.output);
     setOutput(data.output);
   }
 
@@ -87,7 +93,12 @@ function App() {
           />
         </div>
         <div className="user-values-container">
-          <textarea className="input-box" placeholder="Input"></textarea>
+          <textarea
+            className="input-box"
+            placeholder="Input"
+            onChange={(e) => {
+              setInput(e.target.value);
+            }}></textarea>
           <div className="output-box" placeholder="Output" value={output}>
             {output}
           </div>
